@@ -18,7 +18,7 @@ setup(
     url = "http://gitlab.python.org/an_example_pypi_project",
     packages=['attask',],
     long_description=read('README.md'),
-    install_requires = ['kombu', 'isodate'],
+    install_requires = ['kombu>=2.3.0', 'isodate'],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
