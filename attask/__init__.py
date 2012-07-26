@@ -5,27 +5,43 @@ __license__ = 'MIT'
 import requests
 
 class ATTask(object):
-    
+
     def __init__(self, username=None, password=None, domain=None):
         self.username = username
         self.password = password
         self.domain = domain
         self.session_id = None
         
+        self.types = {}
+        
         self.login()
         
-    def post(self, path, data):
+    def _post(self, path, data):
         if self.session_id is None:
             raise Exception("Not logged in.")
     
         with requests.session(headers={'SessionID': self.session_id}) as c:
             return c.post('%s/attask/api/v2.0/%s' % (self.domain, path), data=data)
     
-    def get(self, path):
+    def _get(self, path, params=None):
         if self.session_id is None:
             raise Exception("Not logged in.")
         with requests.session(headers={'SessionID': self.session_id}) as c:
-            return c.get('%s/attask/api/v2.0/%s' % (self.domain, path))
+            return c.get('%s/attask/api/v2.0/%s' % (self.domain, path), params=params)
+        
+    def get(self, name, id, extra_fields=[]):
+        params = None
+        if extra_fields:
+            params = {'fields': ",".join(extra_fields)}            
+        return self._get('%s/%s' % (name, id), params=params).json
+        
+    def search(self, name, params={}, extra_fields=[]):
+        if extra_fields:
+            params['fields'] = ",".join(extra_fields)
+        return self._get("%s/search" % name, params=params).json
+        
+    def metadata(self, name):
+        return self._get("%s/metadata" % name).json
         
     def login(self):
         if self.username is None or self.password is None:
